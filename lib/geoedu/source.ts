@@ -1,0 +1,1 @@
+export const GEOEDU_CATALOG_SOURCE_COMMIT = 'dddb780d248cfafbd025e00fd496d86311b839cd';
