@@ -8,6 +8,7 @@ import {
   GEOEDU_SOURCE_EXPERIMENTS_PATH,
   GEOEDU_SOURCE_REPOSITORY,
 } from '@/lib/geoedu/catalog';
+import { GEOEDU_CATALOG_SOURCE_COMMIT } from '@/lib/geoedu/source';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +18,7 @@ export async function GET() {
     integrationVersion: GEOEDU_INTEGRATION_VERSION,
     sourceRepository: GEOEDU_SOURCE_REPOSITORY,
     sourceExperimentsPath: GEOEDU_SOURCE_EXPERIMENTS_PATH,
+    sourceCommit: GEOEDU_CATALOG_SOURCE_COMMIT,
     mode: 'read-only-upstream',
     counts: {
       courses: GEOEDU_COURSES.length,
