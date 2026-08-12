@@ -15,9 +15,84 @@ import {
 
 export const maxDuration = 30;
 
+const STRING_FIELDS = [
+  'experimentId',
+  'course',
+  'experimentTitle',
+  'knowledgePoint',
+  'dataSource',
+  'difficulty',
+  'rubric',
+  'region',
+  'extraRequirement',
+] as const;
+
+const BOOLEAN_FIELDS = [
+  'enableWebSearch',
+  'enableImageGeneration',
+  'enableVideoGeneration',
+  'enableTTS',
+] as const;
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const body = (await req.json()) as Partial<GeoEduClassroomRequest>;
+    let rawBody: unknown;
+    try {
+      rawBody = await req.json();
+    } catch {
+      return apiError('INVALID_REQUEST', 400, 'Request body must be valid JSON');
+    }
+
+    if (!rawBody || typeof rawBody !== 'object' || Array.isArray(rawBody)) {
+      return apiError('INVALID_REQUEST', 400, 'Request body must be a JSON object');
+    }
+
+    const record = rawBody as Record<string, unknown>;
+    const invalidStringField = STRING_FIELDS.find(
+      (field) => record[field] != null && typeof record[field] !== 'string',
+    );
+    if (invalidStringField) {
+      return apiError(
+        'INVALID_REQUEST',
+        400,
+        `Field must be a string: ${invalidStringField}`,
+      );
+    }
+
+    const invalidBooleanField = BOOLEAN_FIELDS.find(
+      (field) => record[field] != null && typeof record[field] !== 'boolean',
+    );
+    if (invalidBooleanField) {
+      return apiError(
+        'INVALID_REQUEST',
+        400,
+        `Field must be a boolean: ${invalidBooleanField}`,
+      );
+    }
+
+    for (const field of ['tools', 'expectedOutputs'] as const) {
+      if (record[field] != null && !isStringArray(record[field])) {
+        return apiError('INVALID_REQUEST', 400, `Field must be a string array: ${field}`);
+      }
+    }
+
+    if (
+      record.agentMode != null &&
+      record.agentMode !== 'default' &&
+      record.agentMode !== 'generate'
+    ) {
+      return apiError(
+        'INVALID_REQUEST',
+        400,
+        'Field agentMode must be "default" or "generate"',
+      );
+    }
+
+    const body = rawBody as Partial<GeoEduClassroomRequest>;
     const course = typeof body.course === 'string' ? body.course.trim() : '';
     const experimentId =
       typeof body.experimentId === 'string' ? body.experimentId.trim() : '';
