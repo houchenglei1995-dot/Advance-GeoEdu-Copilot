@@ -38,6 +38,7 @@ export default function GeoEduPage() {
   const [extraRequirement, setExtraRequirement] = useState('');
   const [enableWebSearch, setEnableWebSearch] = useState(false);
   const [enableImageGeneration, setEnableImageGeneration] = useState(false);
+  const [enableVideoGeneration, setEnableVideoGeneration] = useState(false);
   const [enableTTS, setEnableTTS] = useState(false);
   const [state, setState] = useState<GenerationState>('idle');
   const [message, setMessage] = useState('');
@@ -58,7 +59,7 @@ export default function GeoEduPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setState('submitting');
-    setMessage('正在把 GeoEdu 教学任务交给 OpenMAIC 多智能体课堂引擎…');
+    setMessage('正在创建课堂…');
     setProgress(2);
     setStep('initializing');
     setClassroomUrl('');
@@ -77,10 +78,12 @@ export default function GeoEduPage() {
           extraRequirement,
           enableWebSearch,
           enableImageGeneration,
+          enableVideoGeneration,
           enableTTS,
           agentMode: 'generate',
         }),
       });
+
       const created = (await response.json()) as JobResponse;
       if (!response.ok || !created.success || !created.pollUrl) {
         throw new Error(created.error || '课堂生成任务创建失败');
@@ -94,6 +97,7 @@ export default function GeoEduPage() {
         await sleep(pollIntervalMs);
         const pollResponse = await fetch(created.pollUrl, { cache: 'no-store' });
         const job = (await pollResponse.json()) as JobResponse;
+
         if (!pollResponse.ok || !job.success) {
           throw new Error(job.error || '课堂生成状态读取失败');
         }
@@ -108,14 +112,14 @@ export default function GeoEduPage() {
             setProgress(100);
             setStep('completed');
             setState('succeeded');
-            setMessage('课堂已生成，可进入 OpenMAIC 多智能体课堂。');
+            setMessage('课堂已生成。');
             return;
           }
           throw new Error(job.error || '课堂生成失败');
         }
       }
 
-      throw new Error('课堂生成时间过长，请稍后通过任务接口继续查看状态');
+      throw new Error('课堂生成时间较长，可稍后通过任务接口继续查看状态');
     } catch (error) {
       setState('failed');
       setMessage(error instanceof Error ? error.message : '课堂生成失败');
@@ -137,8 +141,7 @@ export default function GeoEduPage() {
                 自然资源遥感多智能体实践课堂
               </h1>
               <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
-                GeoEdu-Copilot 提供课程、实验、数据与评价语义，OpenMAIC
-                提供多智能体编排、课件、测验、交互场景、PBL、白板、语音与课堂运行能力。
+                从 GeoEdu 课程与实验中选择任务，直接调用 OpenMAIC 生成课堂。实验的数据源、工具、成果要求和评分标准会自动带入。
               </p>
             </div>
             <div className="flex gap-3 text-sm">
@@ -159,9 +162,9 @@ export default function GeoEduPage() {
 
           <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Metric label="课程" value={String(GEOEDU_COURSES.length)} />
-            <Metric label="实验预设" value={String(GEOEDU_EXPERIMENTS.length)} />
+            <Metric label="实验" value={String(GEOEDU_EXPERIMENTS.length)} />
             <Metric label="课堂引擎" value="OpenMAIC" />
-            <Metric label="上游模式" value="只读" />
+            <Metric label="目录版本" value="2026.08" />
           </div>
         </header>
 
@@ -171,10 +174,9 @@ export default function GeoEduPage() {
             className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
           >
             <div className="mb-6">
-              <h2 className="text-lg font-semibold">1. 选择 GeoEdu 教学任务</h2>
+              <h2 className="text-lg font-semibold">1. 选择课程和实验</h2>
               <p className="mt-1 text-sm leading-6 text-slate-500">
-                选择已有实验即可自动带入数据源、工具、难度、成果要求和
-                Rubric；也可以切换到自定义任务。
+                选择已有实验会自动填入相关信息，也可以使用自定义任务。
               </p>
             </div>
 
@@ -195,7 +197,7 @@ export default function GeoEduPage() {
               </label>
 
               <label>
-                <span className="mb-2 block text-sm font-medium">实验预设</span>
+                <span className="mb-2 block text-sm font-medium">实验</span>
                 <select
                   value={experimentId}
                   onChange={(event) => setExperimentId(event.target.value)}
@@ -224,7 +226,7 @@ export default function GeoEduPage() {
                   />
                 </dl>
                 <p className="mt-3 text-xs leading-5 text-slate-500">
-                  评价依据：{selectedExperiment.rubric}
+                  评分标准：{selectedExperiment.rubric}
                 </p>
               </div>
             ) : (
@@ -245,28 +247,28 @@ export default function GeoEduPage() {
             )}
 
             <div className="mt-7 border-t border-slate-100 pt-6">
-              <h2 className="text-lg font-semibold">2. 增加本次课堂约束</h2>
+              <h2 className="text-lg font-semibold">2. 补充课堂要求</h2>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <Field
-                  label="核心知识点"
+                  label="知识点"
                   value={knowledgePoint}
                   onChange={setKnowledgePoint}
                   placeholder="例如：RVI / DpRVIc、TVDI、随机森林"
                 />
                 <Field
-                  label="研究区/实践区域"
+                  label="研究区"
                   value={region}
                   onChange={setRegion}
                   placeholder="可选，例如：鲁西北平原"
                 />
                 <label className="sm:col-span-2">
-                  <span className="mb-2 block text-sm font-medium">补充教学要求</span>
+                  <span className="mb-2 block text-sm font-medium">补充要求</span>
                   <textarea
                     value={extraRequirement}
                     onChange={(event) => setExtraRequirement(event.target.value)}
                     rows={4}
                     className="w-full rounded-lg border border-slate-300 px-3 py-2.5"
-                    placeholder="例如：重点训练错误诊断和结果解释；不直接给出完整作业答案。"
+                    placeholder="例如：增加常见错误分析和结果解释。"
                   />
                 </label>
               </div>
@@ -283,6 +285,11 @@ export default function GeoEduPage() {
                 checked={enableImageGeneration}
                 onChange={setEnableImageGeneration}
               />
+              <Toggle
+                label="视频生成"
+                checked={enableVideoGeneration}
+                onChange={setEnableVideoGeneration}
+              />
               <Toggle label="课堂语音" checked={enableTTS} onChange={setEnableTTS} />
             </div>
 
@@ -291,13 +298,13 @@ export default function GeoEduPage() {
               disabled={busy}
               className="mt-6 rounded-lg bg-slate-900 px-5 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {busy ? 'OpenMAIC 正在生成…' : '生成多智能体实践课堂'}
+              {busy ? '正在生成…' : '生成实践课堂'}
             </button>
           </form>
 
           <aside className="space-y-6">
             <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <h2 className="text-lg font-semibold">OpenMAIC 能力层</h2>
+              <h2 className="text-lg font-semibold">可用课堂功能</h2>
               <div className="mt-4 space-y-4">
                 {GEOEDU_CAPABILITY_DETAILS.map((capability) => (
                   <div key={capability.id}>
@@ -311,11 +318,10 @@ export default function GeoEduPage() {
             </section>
 
             <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <h2 className="text-lg font-semibold">运行状态</h2>
+              <h2 className="text-lg font-semibold">生成状态</h2>
               {state === 'idle' ? (
                 <p className="mt-3 text-sm leading-6 text-slate-500">
-                  选择教学任务后生成课堂。生成任务复用 OpenMAIC
-                  原生异步课堂管线与持久化机制。
+                  选择实验并提交后，课堂生成进度会显示在这里。
                 </p>
               ) : (
                 <div className="mt-4 text-sm leading-6">
@@ -335,7 +341,7 @@ export default function GeoEduPage() {
                       className="mt-4 inline-block font-medium text-emerald-700 underline underline-offset-4"
                       href={classroomUrl}
                     >
-                      进入生成的课堂
+                      进入课堂
                     </a>
                   )}
                 </div>
