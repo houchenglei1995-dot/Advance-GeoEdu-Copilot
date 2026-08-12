@@ -4,8 +4,14 @@ import { apiError, apiSuccess } from '@/lib/server/api-response';
 import { buildRequestOrigin } from '@/lib/server/classroom-storage';
 import { createClassroomGenerationJob } from '@/lib/server/classroom-job-store';
 import { runClassroomGenerationJob } from '@/lib/server/classroom-job-runner';
-import { buildGeoEduClassroomInput, type GeoEduClassroomRequest } from '@/lib/geoedu/bridge';
-import { findGeoEduExperiment, GEOEDU_INTEGRATION_VERSION } from '@/lib/geoedu/catalog';
+import {
+  buildGeoEduClassroomInput,
+  type GeoEduClassroomRequest,
+} from '@/lib/geoedu/bridge';
+import {
+  findGeoEduExperiment,
+  GEOEDU_INTEGRATION_VERSION,
+} from '@/lib/geoedu/catalog';
 
 export const maxDuration = 30;
 
