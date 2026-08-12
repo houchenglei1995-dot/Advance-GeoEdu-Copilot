@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { buildGeoEduClassroomInput } from './bridge';
 
 describe('buildGeoEduClassroomInput', () => {
-  it('maps remote-sensing teaching metadata into an OpenMAIC classroom requirement', () => {
+  it('maps explicit remote-sensing teaching metadata into an OpenMAIC requirement', () => {
     const result = buildGeoEduClassroomInput({
       course: '微波遥感',
       experimentTitle: '基于 Sentinel-1 的双极化植被指数实践实验',
@@ -25,13 +25,29 @@ describe('buildGeoEduClassroomInput', () => {
     expect(result.agentMode).toBe('generate');
   });
 
-  it('rejects an empty course', () => {
-    expect(() => buildGeoEduClassroomInput({ course: '   ' })).toThrow('course is required');
+  it('resolves a GeoEdu experiment preset by id', () => {
+    const result = buildGeoEduClassroomInput({
+      experimentId: 'EXP-S1-008',
+      region: '鲁西北平原',
+    });
+
+    expect(result.requirement).toContain('GeoEdu 实验编号：EXP-S1-008');
+    expect(result.requirement).toContain('课程：微波遥感');
+    expect(result.requirement).toContain('Sentinel-1 GRD VV/VH 课程运行数据');
+    expect(result.requirement).toContain('SNAP、GEE、Python');
+    expect(result.requirement).toContain('研究区/实践区域：鲁西北平原');
+  });
+
+  it('rejects requests without a course or known experiment', () => {
+    expect(() => buildGeoEduClassroomInput({})).toThrow('course or experimentId is required');
+    expect(() => buildGeoEduClassroomInput({ experimentId: 'UNKNOWN' })).toThrow(
+      'unknown GeoEdu experiment: UNKNOWN',
+    );
   });
 
   it('preserves explicit OpenMAIC feature switches', () => {
     const result = buildGeoEduClassroomInput({
-      course: '热红外遥感',
+      experimentId: 'EXP-LST-011',
       enableWebSearch: true,
       enableImageGeneration: false,
       enableVideoGeneration: true,
