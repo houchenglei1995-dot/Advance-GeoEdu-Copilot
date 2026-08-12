@@ -1,7 +1,7 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
-import { GEOEDU_COURSES } from '@/lib/geoedu/bridge';
+import { useState, type FormEvent } from 'react';
+import { GEOEDU_COURSES } from '@/lib/geoedu/catalog';
 
 type GenerationState = 'idle' | 'submitting' | 'running' | 'succeeded' | 'failed';
 
@@ -100,12 +100,16 @@ export default function GeoEduPage() {
             自然资源遥感多智能体课堂
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
-            GeoEdu-Copilot 提供课程、实验与评价语义，OpenMAIC 负责多智能体编排、课件、测验、交互场景、PBL、白板与语音等课堂能力。
+            GeoEdu-Copilot 提供课程、实验与评价语义，OpenMAIC
+            负责多智能体编排、课件、测验、交互场景、PBL、白板与语音等课堂能力。
           </p>
         </header>
 
         <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-          <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <form
+            onSubmit={handleSubmit}
+            className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+          >
             <div className="grid gap-5 sm:grid-cols-2">
               <label className="sm:col-span-2">
                 <span className="mb-2 block text-sm font-medium">课程</span>
@@ -122,10 +126,30 @@ export default function GeoEduPage() {
                 </select>
               </label>
 
-              <Field label="实验任务" value={experimentTitle} onChange={setExperimentTitle} placeholder="如：Sentinel-1 双极化植被指数实验" />
-              <Field label="核心知识点" value={knowledgePoint} onChange={setKnowledgePoint} placeholder="如：RVI / DpRVIc" />
-              <Field label="数据源" value={dataSource} onChange={setDataSource} placeholder="如：Sentinel-1 GRD VV/VH" />
-              <Field label="研究区/实践区域" value={region} onChange={setRegion} placeholder="可选" />
+              <Field
+                label="实验任务"
+                value={experimentTitle}
+                onChange={setExperimentTitle}
+                placeholder="如：Sentinel-1 双极化植被指数实验"
+              />
+              <Field
+                label="核心知识点"
+                value={knowledgePoint}
+                onChange={setKnowledgePoint}
+                placeholder="如：RVI / DpRVIc"
+              />
+              <Field
+                label="数据源"
+                value={dataSource}
+                onChange={setDataSource}
+                placeholder="如：Sentinel-1 GRD VV/VH"
+              />
+              <Field
+                label="研究区/实践区域"
+                value={region}
+                onChange={setRegion}
+                placeholder="可选"
+              />
 
               <label className="sm:col-span-2">
                 <span className="mb-2 block text-sm font-medium">补充教学要求</span>
@@ -140,7 +164,11 @@ export default function GeoEduPage() {
             </div>
 
             <div className="mt-6 flex flex-wrap gap-5 border-t border-slate-100 pt-5 text-sm">
-              <Toggle label="启用 Web 检索" checked={enableWebSearch} onChange={setEnableWebSearch} />
+              <Toggle
+                label="启用 Web 检索"
+                checked={enableWebSearch}
+                onChange={setEnableWebSearch}
+              />
               <Toggle label="启用课堂语音" checked={enableTTS} onChange={setEnableTTS} />
             </div>
 
