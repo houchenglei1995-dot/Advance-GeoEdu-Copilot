@@ -69,7 +69,9 @@ export default function GeoEduPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...(custom ? { course, experimentTitle: customTitle, dataSource: customDataSource } : { experimentId }),
+          ...(custom
+            ? { course, experimentTitle: customTitle, dataSource: customDataSource }
+            : { experimentId }),
           knowledgePoint,
           region,
           extraRequirement,
@@ -135,11 +137,15 @@ export default function GeoEduPage() {
                 自然资源遥感多智能体实践课堂
               </h1>
               <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
-                GeoEdu-Copilot 提供课程、实验、数据与评价语义，OpenMAIC 提供多智能体编排、课件、测验、交互场景、PBL、白板、语音与课堂运行能力。
+                GeoEdu-Copilot 提供课程、实验、数据与评价语义，OpenMAIC
+                提供多智能体编排、课件、测验、交互场景、PBL、白板、语音与课堂运行能力。
               </p>
             </div>
             <div className="flex gap-3 text-sm">
-              <a className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-medium" href="/">
+              <a
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-medium"
+                href="/"
+              >
                 OpenMAIC 通用入口
               </a>
               <a
@@ -160,11 +166,15 @@ export default function GeoEduPage() {
         </header>
 
         <div className="grid gap-7 lg:grid-cols-[1.25fr_0.75fr]">
-          <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <form
+            onSubmit={handleSubmit}
+            className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+          >
             <div className="mb-6">
               <h2 className="text-lg font-semibold">1. 选择 GeoEdu 教学任务</h2>
               <p className="mt-1 text-sm leading-6 text-slate-500">
-                选择已有实验即可自动带入数据源、工具、难度、成果要求和 Rubric；也可以切换到自定义任务。
+                选择已有实验即可自动带入数据源、工具、难度、成果要求和
+                Rubric；也可以切换到自定义任务。
               </p>
             </div>
 
@@ -208,7 +218,10 @@ export default function GeoEduPage() {
                   <Info label="难度" value={selectedExperiment.difficulty} />
                   <Info label="工具" value={selectedExperiment.tools.join(' · ')} />
                   <Info label="数据源" value={selectedExperiment.dataSource} />
-                  <Info label="预期成果" value={selectedExperiment.expectedOutputs.join(' · ')} />
+                  <Info
+                    label="预期成果"
+                    value={selectedExperiment.expectedOutputs.join(' · ')}
+                  />
                 </dl>
                 <p className="mt-3 text-xs leading-5 text-slate-500">
                   评价依据：{selectedExperiment.rubric}
@@ -260,7 +273,11 @@ export default function GeoEduPage() {
             </div>
 
             <div className="mt-6 flex flex-wrap gap-x-5 gap-y-3 border-t border-slate-100 pt-5 text-sm">
-              <Toggle label="Web 检索" checked={enableWebSearch} onChange={setEnableWebSearch} />
+              <Toggle
+                label="Web 检索"
+                checked={enableWebSearch}
+                onChange={setEnableWebSearch}
+              />
               <Toggle
                 label="图像生成"
                 checked={enableImageGeneration}
@@ -285,7 +302,9 @@ export default function GeoEduPage() {
                 {GEOEDU_CAPABILITY_DETAILS.map((capability) => (
                   <div key={capability.id}>
                     <div className="text-sm font-medium text-slate-900">{capability.label}</div>
-                    <p className="mt-1 text-sm leading-6 text-slate-500">{capability.description}</p>
+                    <p className="mt-1 text-sm leading-6 text-slate-500">
+                      {capability.description}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -295,7 +314,8 @@ export default function GeoEduPage() {
               <h2 className="text-lg font-semibold">运行状态</h2>
               {state === 'idle' ? (
                 <p className="mt-3 text-sm leading-6 text-slate-500">
-                  选择教学任务后生成课堂。生成任务复用 OpenMAIC 原生异步课堂管线与持久化机制。
+                  选择教学任务后生成课堂。生成任务复用 OpenMAIC
+                  原生异步课堂管线与持久化机制。
                 </p>
               ) : (
                 <div className="mt-4 text-sm leading-6">
