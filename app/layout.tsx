@@ -28,9 +28,13 @@ import { AccessCodeGuard } from '@/components/access-code-guard';
 import '@fontsource-variable/inter';
 
 export const metadata: Metadata = {
-  title: 'OpenMAIC',
+  title: {
+    default: 'Advance GeoEdu-Copilot',
+    template: '%s | Advance GeoEdu-Copilot',
+  },
+  applicationName: 'Advance GeoEdu-Copilot',
   description:
-    'The open-source AI interactive classroom. Upload a PDF to instantly generate an immersive, multi-agent learning experience.',
+    'GeoEdu-Copilot enhanced by OpenMAIC: a multi-agent practical teaching runtime for natural-resources remote sensing courses.',
 };
 
 export default function RootLayout({
