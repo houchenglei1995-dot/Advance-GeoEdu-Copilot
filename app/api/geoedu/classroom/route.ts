@@ -14,7 +14,7 @@ export const maxDuration = 30;
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as Partial<GeoEduClassroomRequest>;
-    if (!body.course?.trim()) {
+    if (typeof body.course !== 'string' || !body.course.trim()) {
       return apiError('MISSING_REQUIRED_FIELD', 400, 'Missing required field: course');
     }
 
