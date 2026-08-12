@@ -9,6 +9,7 @@
 - 建立 GeoEdu 版本化教学目录。
 - 纳入 7 门自然资源遥感相关课程、19 个实验预设。
 - 实验预设包含数据源、工具链、难度、预期成果和 Rubric。
+- 教学目录快照固定到 GeoEdu 源提交 `dddb780d248cfafbd025e00fd496d86311b839cd`，支持来源追溯。
 - GeoEdu 原仓库保持只读，不修改其 Streamlit 应用和源代码。
 
 ### OpenMAIC bridge
@@ -24,6 +25,7 @@
 - `GET /api/geoedu/catalog`
 - `GET /api/geoedu/health`
 - `POST /api/geoedu/classroom`
+- 课堂 API 增加 JSON 对象、字符串、布尔值、字符串数组、`agentMode` 和实验编号校验。
 
 ### User experience
 
