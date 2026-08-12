@@ -12,7 +12,9 @@ export function GeoEduEntryBanner() {
       <div className="text-xs font-semibold tracking-wide text-emerald-700">
         Advance GeoEdu-Copilot
       </div>
-      <div className="mt-1 text-sm font-medium text-slate-900">自然资源遥感多智能体实践课堂</div>
+      <div className="mt-1 text-sm font-medium text-slate-900">
+        自然资源遥感多智能体实践课堂
+      </div>
       <p className="mt-1 text-xs leading-5 text-slate-500">
         7 门课程、19 个实验预设，使用 OpenMAIC 多智能体课堂能力。
       </p>
