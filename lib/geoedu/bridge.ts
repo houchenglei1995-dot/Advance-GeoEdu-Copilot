@@ -1,13 +1,15 @@
 import type { GenerateClassroomInput } from '@/lib/server/classroom-generation';
+import { findGeoEduExperiment } from '@/lib/geoedu/catalog';
 
 export interface GeoEduClassroomRequest {
-  course: string;
+  experimentId?: string;
+  course?: string;
   experimentTitle?: string;
   knowledgePoint?: string;
   dataSource?: string;
-  tools?: string[];
+  tools?: readonly string[];
   difficulty?: string;
-  expectedOutputs?: string[];
+  expectedOutputs?: readonly string[];
   rubric?: string;
   region?: string;
   extraRequirement?: string;
@@ -23,21 +25,37 @@ function clean(value?: string): string | undefined {
   return normalized || undefined;
 }
 
-function join(values?: string[]): string | undefined {
+function join(values?: readonly string[]): string | undefined {
   const normalized = values?.map((value) => value.trim()).filter(Boolean);
   return normalized?.length ? normalized.join('、') : undefined;
 }
 
 /**
- * Map GeoEdu-Copilot's remote-sensing teaching semantics into OpenMAIC's
- * native classroom-generation contract. GeoEdu remains the domain source;
- * OpenMAIC provides orchestration, scenes, agents, media, PBL and persistence.
+ * Map GeoEdu-Copilot teaching semantics into OpenMAIC's native classroom
+ * generation contract. A caller can provide an experimentId alone, override
+ * any preset field, or submit a completely custom course task.
  */
 export function buildGeoEduClassroomInput(
   input: GeoEduClassroomRequest,
 ): GenerateClassroomInput {
-  const course = clean(input.course);
-  if (!course) throw new Error('course is required');
+  const experimentId = clean(input.experimentId);
+  const experiment = findGeoEduExperiment(experimentId);
+
+  if (experimentId && !experiment) {
+    throw new Error(`unknown GeoEdu experiment: ${experimentId}`);
+  }
+
+  const course = clean(input.course) ?? experiment?.course;
+  if (!course) {
+    throw new Error('course or experimentId is required');
+  }
+
+  const experimentTitle = clean(input.experimentTitle) ?? experiment?.title;
+  const dataSource = clean(input.dataSource) ?? experiment?.dataSource;
+  const tools = join(input.tools) ?? join(experiment?.tools);
+  const difficulty = clean(input.difficulty) ?? experiment?.difficulty;
+  const expectedOutputs = join(input.expectedOutputs) ?? join(experiment?.expectedOutputs);
+  const rubric = clean(input.rubric) ?? experiment?.rubric;
 
   const requirement = [
     '你正在为 GeoEdu-Copilot 的自然资源遥感实践教学场景生成一间 OpenMAIC 多智能体课堂。',
@@ -45,15 +63,16 @@ export function buildGeoEduClassroomInput(
     '优先组织为“任务导入—方法与数据—分步实践—错误诊断—结果解释—测验/检查—总结反思”的教学闭环；适合时使用幻灯片、测验、交互场景或 PBL。',
     '不要虚构专有数据、学生成绩或学校内部系统信息；未提供的参数应明确为待配置项。',
     '涉及遥感代码时，强调可复现的处理逻辑、输入输出与常见错误，不替学生直接完成整份作业。',
+    experimentId ? `GeoEdu 实验编号：${experimentId}` : undefined,
     `课程：${course}`,
-    clean(input.experimentTitle) ? `实验任务：${clean(input.experimentTitle)}` : undefined,
+    experimentTitle ? `实验任务：${experimentTitle}` : undefined,
     clean(input.knowledgePoint) ? `核心知识点：${clean(input.knowledgePoint)}` : undefined,
-    clean(input.difficulty) ? `难度：${clean(input.difficulty)}` : undefined,
-    clean(input.dataSource) ? `数据源：${clean(input.dataSource)}` : undefined,
-    join(input.tools) ? `工具链：${join(input.tools)}` : undefined,
+    difficulty ? `难度：${difficulty}` : undefined,
+    dataSource ? `数据源：${dataSource}` : undefined,
+    tools ? `工具链：${tools}` : undefined,
     clean(input.region) ? `研究区/实践区域：${clean(input.region)}` : undefined,
-    join(input.expectedOutputs) ? `预期成果：${join(input.expectedOutputs)}` : undefined,
-    clean(input.rubric) ? `评价依据：${clean(input.rubric)}` : undefined,
+    expectedOutputs ? `预期成果：${expectedOutputs}` : undefined,
+    rubric ? `评价依据：${rubric}` : undefined,
     clean(input.extraRequirement) ? `补充要求：${clean(input.extraRequirement)}` : undefined,
   ]
     .filter(Boolean)
